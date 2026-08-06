@@ -189,6 +189,7 @@ def ogl_draw():
 			'f - fullscreen\n'
 			'z/x - prev/next block\n'
 			'c - physics\n'
+			'+/- - change render dist\n'
 			'h - hide interface',
 			
 			'rendered chunks: %i' % count_rendered_chunks,
