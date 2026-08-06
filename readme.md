@@ -1,3 +1,15 @@
+## Screenshots
+
+![usual](screenshots/0_usual.webp)
+
+![ore_and_blocks](screenshots/1_ore_and_blocks.webp)
+
+![house](screenshots/2_house.webp)
+
+
+***
+
+
 ## \[RU]
 
 Простой клон Майнкрафта, созданный мной за месяц во время изучения современного OpenGL.  
