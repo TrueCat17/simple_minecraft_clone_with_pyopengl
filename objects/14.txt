@@ -1,0 +1,28 @@
+top 1
+bottom 0
+musicbox
+
+top 2
+bottom 0 10
+left 3
+front 4
+crafting_table
+
+front 5
+side 6
+back 6
+top 7
+furnace
+
+front 8
+side 6
+back 6
+top 7
+furnace_lit
+
+main 9
+side 10
+barrel
+
+main 11
+target

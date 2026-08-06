@@ -1,0 +1,13 @@
+postfix _block
+
+coal
+copper
+iron
+diamond
+gold
+redstone
+lapis_lazuli
+emerald
+quartz
+amethyst
+netherite

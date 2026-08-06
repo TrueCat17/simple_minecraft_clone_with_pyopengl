@@ -1,0 +1,16 @@
+bedrock
+obsidian
+crying_obsidian
+netherrack
+stone
+cobblestone
+mossy_cobblestone
+andesite
+diorite
+granite
+tuff
+deepslate
+sandstone
+end_stone
+mud
+packed_mud

@@ -1,0 +1,11 @@
+bricks
+
+postfix _bricks
+
+netherrack
+stone
+mossy_stone
+tuff
+deepslate
+endstone
+mud

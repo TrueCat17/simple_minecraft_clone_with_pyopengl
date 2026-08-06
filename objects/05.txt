@@ -1,0 +1,13 @@
+postfix _ore
+
+coal
+copper
+iron
+diamond
+gold
+redstone
+lapis_lazuli
+emerald
+nether_quartz
+nether_gold
+ancient_debris

@@ -1,0 +1,13 @@
+diag True
+physics False
+postfix _sapling
+
+oak
+dark_oak
+spruce
+birch
+acacia
+mangrove
+cherry
+pale_oak
+warped_fungus

@@ -1,0 +1,29 @@
+dirt
+
+main 2
+top 1
+bottom 0
+grass
+
+main 3
+top 9
+bottom 0
+snow_grass
+
+sand
+
+full_opaque False
+glass
+spawner
+
+full_opaque True
+gravel
+clay
+snow
+blue_ice
+sea_lantern
+sponge
+
+top 14
+bottom 15
+tnt

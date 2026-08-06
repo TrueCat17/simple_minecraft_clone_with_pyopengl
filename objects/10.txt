@@ -1,0 +1,12 @@
+postfix _planks
+
+oak
+dark_oak
+spruce
+birch
+acacia
+mangrove
+cherry
+pale_oak
+warped
+crimson

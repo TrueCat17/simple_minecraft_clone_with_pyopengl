@@ -1,0 +1,25 @@
+postfix _log
+
+side 0 12
+oak
+
+side 1 12
+dark_oak
+
+side 2 12
+spruce
+
+side 3 12
+birch
+
+side 4 12
+acacia
+
+side 5 12
+mangrove
+
+side 6 12
+cherry
+
+side 7 12
+pale_oak

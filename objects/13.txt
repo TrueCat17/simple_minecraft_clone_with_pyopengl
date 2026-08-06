@@ -1,0 +1,21 @@
+diag True
+
+cobweb
+cane
+berries
+
+physics False
+
+red_mushroom
+brown_mushroom
+
+short_grass
+sea_grass
+
+prefix flower_
+
+white
+yellow
+red
+purple
+blue

@@ -1,0 +1,27 @@
+# 8 line - transparent leaves (but this is a bad rendering method now)
+#full_opaque False
+
+postfix _leaves
+
+oak
+
+main 0
+dark_oak
+
+main 2
+spruce
+birch
+acacia
+mangrove
+cherry
+pale_oak
+
+
+postfix None
+
+# no transparent version
+main 8 9
+warped_wart_block
+
+main 9 9
+nether_wart_block

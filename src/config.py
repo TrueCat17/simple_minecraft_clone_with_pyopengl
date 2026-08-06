@@ -1,0 +1,57 @@
+import os
+project_dir = os.path.dirname(os.path.abspath(__file__)).rstrip('/\\') + '/'
+
+
+
+# major world params, changes -> removing old world
+
+SEED = 321
+
+CHUNK_SIZE = 16
+CHUNK_HEIGHT = 400
+
+
+
+# minor params, changes are safe:
+
+CAMERA_FOV = 140
+CAMERA_ROTATION_SPEED = 0.2
+
+PLAYER_PHYSICS_DEFAULT = True
+
+# physics: on
+PLAYER_ACCELERATION = 1.0
+PLAYER_FRICTION_K = 0.82
+PLAYER_JUMP_ACCELERATION = 0.2
+PLAYER_GRAVITY = 0.012
+PLAYER_GRAVITY_FRICTION = 0.99
+PLAYER_MIN_SPEED = 0.005
+
+# physics: off
+PLAYER_NO_PHYSICS_ACCELERATION = 1.4
+PLAYER_NO_PHYSICS_FRICTION_K = 0.94
+PLAYER_NO_PHYSICS_GRAVITY_FRICTION = 0.9
+PLAYER_NO_PHYSICS_MIN_SPEED = 0.01
+
+
+CHUNK_BORDER_ENABLED_DEFAULT = False
+CHUNK_BORDER_LINE_COUNT = 4
+CHUNK_BORDER_LINE_WIDTH = 0.75 / 16
+CHUNK_BORDER_COLOR = (1.0, 1.0, 0.0, 1.0)
+
+SELECTED_BLOCK_LINE_WIDTH = 0.25 / 16
+SELECTED_BLOCK_COLOR = (0.0, 0.0, 0.0, 1.0)
+
+FONT_SYMBOLS = r'''0123456789abcdefghijklmnopqrstuvwxyz.,;:!?#'"/\<>%()[]{}|*+-_=^'''
+FONT_XSIZE = 7
+FONT_YSIZE = 7
+FONT_COLOR_DEFAULT            = (1.0, 1.0, 1.0, 1.0)
+FONT_BACKGROUND_COLOR_DEFAULT = (0.0, 0.0, 0.0, 0.55)
+
+
+# [stable 30 fps] better than [jumps from 40 to 60 and back]
+FPS = 30
+FRAME_TIME = 1 / FPS
+
+RENDER_DISTANCE_IN_CHUNKS_DEFAULT = 7
+CHUNK_APPEARANCE_TIME = 0.33

@@ -1,0 +1,12 @@
+moss
+
+side 2
+melon
+
+main 3
+side 4
+pumpkin
+
+main 5
+side 6
+hay_bales

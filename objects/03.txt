@@ -1,0 +1,18 @@
+prefix glazed_terracotta_
+
+white
+black
+gray
+light_gray
+brown
+green
+lime
+yellow
+orange
+red
+pink
+magenta
+purple
+cyan
+blue
+light_blue
