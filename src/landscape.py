@@ -5,7 +5,7 @@ from blocks import blocks, get_block_id
 
 
 def generate(chunk):
-	chunk.columns = {}
+	chunk.columns = []
 	chunk_params = (chunk.x, chunk.z, chunk.columns, chunk)
 	
 	for fn in (set_landscape, add_oaks, add_spruces, add_short_grass, add_cane):
@@ -109,6 +109,9 @@ def set_landscape(chunk_x, chunk_z, columns, chunk):
 	
 	p = 7
 	for x in range(CHUNK_SIZE):
+		line = []
+		columns.append(line)
+		
 		x2 = x * x
 		sx = CHUNK_SIZE - x
 		sx2 = sx * sx
@@ -137,11 +140,12 @@ def set_landscape(chunk_x, chunk_z, columns, chunk):
 			base_height = (w_00 * base_height_00 + w_01 * base_height_01 + w_10 * base_height_10 + w_11 * base_height_11) / (w_00 + w_01 + w_10 + w_11)
 			base_height = round(base_height)
 			
-			column = columns[(x, z)] = [
+			column = [
 				[bedrock_id, 1],
 				[stone_id, base_height],
 				[dirt_id, 2],
 			]
+			line.append(column)
 			count = 1 + base_height + 2
 			
 			if count < WATER_LEVEL:
@@ -181,7 +185,7 @@ def add_oaks(chunk_x, chunk_z, columns, chunk):
 		x = get_chunk_random(chunk_x, chunk_z, oak_log_id * 51 + i * 2 + 0) % diff_pos + min_pos
 		z = get_chunk_random(chunk_x, chunk_z, oak_log_id * 51 + i * 2 + 1) % diff_pos + min_pos
 		
-		column = columns[(x, z)]
+		column = columns[x][z]
 		pre_last = column[-2]
 		resource = pre_last[0]
 		if resource not in plant_ground_ids:
@@ -246,7 +250,7 @@ def add_spruces(chunk_x, chunk_z, columns, chunk):
 		x = get_chunk_random(chunk_x, chunk_z, spruce_log_id * 51 + i * 2 + 0) % diff_pos + min_pos
 		z = get_chunk_random(chunk_x, chunk_z, spruce_log_id * 51 + i * 2 + 1) % diff_pos + min_pos
 		
-		column = columns[(x, z)]
+		column = columns[x][z]
 		pre_last = column[-2]
 		resource = pre_last[0]
 		if resource not in plant_ground_ids:
@@ -291,81 +295,87 @@ def add_spruces(chunk_x, chunk_z, columns, chunk):
 
 
 def add_short_grass(chunk_x, chunk_z, columns, chunk):
-	for (x, z), column in columns.items():
-		water = False
-		pre_last = column[-2]
-		resource = pre_last[0]
-		if resource == water_id:
-			water = True
-			pre_last = column[-3]
+	for x, line in enumerate(columns):
+		for z, column in enumerate(line):
+			water = False
+			pre_last = column[-2]
 			resource = pre_last[0]
-		
-		if resource not in plant_ground_ids:
-			continue
-		
-		# skip group?
-		r = get_chunk_random(chunk_x, chunk_z, x // 3 + z // 2 * 19) % 317
-		if r > 50:
-			continue
-		
-		# skip unit in group?
-		r = get_chunk_random(chunk_x, chunk_z, x * -122 + z * 55) % 123
-		if r > 40:
-			continue
-		
-		i = 2 if water else 1
-		column[-i][1] -= 1
-		if column[-i][1] == 0:
-			column.pop(-i)
-			i -= 1
-		column.insert(-i, [sea_grass_id if water else short_grass_id, 1])
+			if resource == water_id:
+				water = True
+				pre_last = column[-3]
+				resource = pre_last[0]
+			
+			if resource not in plant_ground_ids:
+				continue
+			
+			# skip group?
+			r = get_chunk_random(chunk_x, chunk_z, x // 3 + z // 2 * 19) % 317
+			if r > 50:
+				continue
+			
+			# skip unit in group?
+			r = get_chunk_random(chunk_x, chunk_z, x * -122 + z * 55) % 123
+			if r > 40:
+				continue
+			
+			i = 2 if water else 1
+			column[-i][1] -= 1
+			if column[-i][1] == 0:
+				column.pop(-i)
+				i -= 1
+			column.insert(-i, [sea_grass_id if water else short_grass_id, 1])
 
 
 def add_cane(chunk_x, chunk_z, columns, chunk):
-	for (x, z), column in columns.items():
-		if x in EDGES or z in EDGES:
+	for x, line in enumerate(columns):
+		if x in EDGES:
 			continue
 		
-		pre_last = column[-2]
-		resource = pre_last[0]
-		if resource != sand_id:
-			continue
-		
-		r = get_chunk_random(chunk_x, chunk_z, x * 23 + z * 29) % 53
-		if r > 10:
-			continue
-		
-		count = 2 + r % 3
-		
-		for dx, dz in ((0, +1), (0, -1), (+1, 0), (-1, 0)):
-			near_column = columns[(x + dx, z + dz)]
-			pre_last = near_column[-2]
+		for z, column in enumerate(line):
+			if z in EDGES:
+				continue
+			
+			pre_last = column[-2]
 			resource = pre_last[0]
-			if resource == water_id:
-				break
-		else:
-			continue
-		
-		column[-1][1] -= count
-		column.insert(-1, [cane_id, count])
+			if resource != sand_id:
+				continue
+			
+			r = get_chunk_random(chunk_x, chunk_z, x * 23 + z * 29) % 53
+			if r > 10:
+				continue
+			
+			count = 2 + r % 3
+			
+			for dx, dz in ((0, +1), (0, -1), (+1, 0), (-1, 0)):
+				near_column = columns[x + dx][z + dz]
+				pre_last = near_column[-2]
+				resource = pre_last[0]
+				if resource == water_id:
+					break
+			else:
+				continue
+			
+			column[-1][1] -= count
+			column.insert(-1, [cane_id, count])
 
 
 def add_plants(chunk_x, chunk_z, columns, chunk, plant_name, chance):
 	plant_id = get_block_id(plant_name)
 	plant_rnd = plant_id * 29 + 17
 	
-	for (x, z), column in columns.items():
-		pre_last = column[-2]
-		resource = pre_last[0]
-		if resource != grass_id:
-			continue
-		
-		r = get_chunk_random(chunk_x, chunk_z, plant_rnd + x * 1001 - z * 13) % 9901
-		if r > chance:
-			continue
-		
-		column[-1][1] -= 1
-		column.insert(-1, [plant_id, 1])
+	for x, line in enumerate(columns):
+		for z, column in enumerate(line):
+			pre_last = column[-2]
+			resource = pre_last[0]
+			if resource != grass_id:
+				continue
+			
+			r = get_chunk_random(chunk_x, chunk_z, plant_rnd + x * 1001 - z * 13) % 9901
+			if r > chance:
+				continue
+			
+			column[-1][1] -= 1
+			column.insert(-1, [plant_id, 1])
 
 
 def add_ore(chunk_x, chunk_z, columns, chunk, ore_name, max_group_count, group_size, chance_to_remove, max_y):

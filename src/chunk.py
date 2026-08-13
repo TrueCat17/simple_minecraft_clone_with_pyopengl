@@ -47,11 +47,6 @@ class Chunk:
 		
 		if not self.read():
 			landscape.generate(self)
-			
-			array = self.columns_as_array = [None] * (CHUNK_SIZE * CHUNK_SIZE)
-			for (x, z), column in self.columns.items():
-				array[x * CHUNK_SIZE + z] = column
-			
 			self.saved = False
 		
 		self.set_corner_points()
@@ -59,12 +54,13 @@ class Chunk:
 	
 	def get_max_y(self):
 		min_air_on_top = config.CHUNK_HEIGHT
-		for column in self.columns.values():
-			resource, count = column[-1]
-			if resource != 0:
-				return config.CHUNK_HEIGHT
-			if min_air_on_top > count:
-				min_air_on_top = count
+		for line in self.columns:
+			for column in line:
+				resource, count = column[-1]
+				if resource != 0:
+					return config.CHUNK_HEIGHT
+				if min_air_on_top > count:
+					min_air_on_top = count
 		return config.CHUNK_HEIGHT - min_air_on_top
 	
 	def set_corner_points(self):
@@ -118,7 +114,7 @@ class Chunk:
 	
 	
 	def get_resource(self, x, y, z):
-		column = self.columns[(x, z)]
+		column = self.columns[x][z]
 		return self.get_resource_in_column(column, y)
 	
 	def get_resource_in_column(self, column, y):
@@ -133,7 +129,8 @@ class Chunk:
 	
 	def set_blocks_in_column(self, y, count, resource, column = None, pos = None, make_model_instantly = False, update_max_y = True):
 		if column is None:
-			column = self.columns[pos]
+			x, z = pos
+			column = self.columns[x][z]
 		
 		if y < 0:
 			return
@@ -204,10 +201,10 @@ class Chunk:
 		y_max = y + count
 		z1 = z + 1
 		if x != 0:
-			near_column = self.columns[(x - 1, z)]
+			near_column = self.columns[x - 1][z]
 		else:
 			near_chunk = self.world.chunks[(self.x - 1, self.z)]
-			near_column = near_chunk.columns[(LAST, z)]
+			near_column = near_chunk.columns[LAST][z]
 		
 		uv = blocks[resource].left_uv
 		
@@ -252,10 +249,10 @@ class Chunk:
 		x1 = x + 1
 		z1 = z + 1
 		if x != LAST:
-			near_column = self.columns[(x + 1, z)]
+			near_column = self.columns[x + 1][z]
 		else:
 			near_chunk = self.world.chunks[(self.x + 1, self.z)]
-			near_column = near_chunk.columns[(0, z)]
+			near_column = near_chunk.columns[0][z]
 		
 		uv = blocks[resource].right_uv
 		
@@ -300,10 +297,10 @@ class Chunk:
 		x1 = x + 1
 		z1 = z + 1
 		if z != LAST:
-			near_column = self.columns[(x, z + 1)]
+			near_column = self.columns[x][z + 1]
 		else:
 			near_chunk = self.world.chunks[(self.x, self.z + 1)]
-			near_column = near_chunk.columns[(x, 0)]
+			near_column = near_chunk.columns[x][0]
 		
 		uv = blocks[resource].front_uv
 		
@@ -347,10 +344,10 @@ class Chunk:
 		y_max = y + count
 		x1 = x + 1
 		if z != 0:
-			near_column = self.columns[(x, z - 1)]
+			near_column = self.columns[x][z - 1]
 		else:
 			near_chunk = self.world.chunks[(self.x, self.z - 1)]
-			near_column = near_chunk.columns[(x, LAST)]
+			near_column = near_chunk.columns[x][LAST]
 		
 		uv = blocks[resource].back_uv
 		
@@ -502,65 +499,67 @@ class Chunk:
 		transparent_vertex_data = self.transparent_vertex_data = []
 		transparent_uv_data     = self.transparent_uv_data     = []
 		
-		for (x, z), column in self.columns.items():
-			y = 0
-			prev_resource_full_opaque = False
-			last_i = len(column) - 1
-			for i, (resource, count) in enumerate(column):
-				need_render = (resource >= 8)
-				
-				if need_render:
-					block = blocks[resource]
+		for x, line in enumerate(self.columns):
+			for z, column in enumerate(line):
+				y = 0
+				prev_resource_full_opaque = False
+				last_i = len(column) - 1
+				for i, (resource, count) in enumerate(column):
+					need_render = (resource >= 8)
 					
-					if block.diag:
-						add_diag(transparent_vertex_data, transparent_uv_data, x, y, z, resource, count)
+					if need_render:
+						block = blocks[resource]
+						
+						if block.diag:
+							add_diag(transparent_vertex_data, transparent_uv_data, x, y, z, resource, count)
+							full_opaque = False
+						
+						else:
+							full_opaque = block.full_opaque
+							
+							if full_opaque:
+								cur_vertex_data = vertex_data
+								cur_uv_data     = uv_data
+							else:
+								cur_vertex_data = transparent_vertex_data
+								cur_uv_data     = transparent_uv_data
+							
+							add_side_left (cur_vertex_data, cur_uv_data, x, y, z, resource, count, full_opaque)
+							add_side_right(cur_vertex_data, cur_uv_data, x, y, z, resource, count, full_opaque)
+							add_side_front(cur_vertex_data, cur_uv_data, x, y, z, resource, count, full_opaque)
+							add_side_back (cur_vertex_data, cur_uv_data, x, y, z, resource, count, full_opaque)
+							
+							if i != last_i:
+								next_resource = column[i + 1][0]
+								next_resource_full_opaque = blocks[next_resource].full_opaque
+							else:
+								next_resource_full_opaque = False
+							
+							if not next_resource_full_opaque:
+								add_top   (cur_vertex_data, cur_uv_data, x, y, z, resource, count)
+							if not prev_resource_full_opaque:
+								add_bottom(cur_vertex_data, cur_uv_data, x, y, z, resource, count)
+					else:
 						full_opaque = False
 					
-					else:
-						full_opaque = block.full_opaque
-						
-						if full_opaque:
-							cur_vertex_data = vertex_data
-							cur_uv_data     = uv_data
-						else:
-							cur_vertex_data = transparent_vertex_data
-							cur_uv_data     = transparent_uv_data
-						
-						add_side_left (cur_vertex_data, cur_uv_data, x, y, z, resource, count, full_opaque)
-						add_side_right(cur_vertex_data, cur_uv_data, x, y, z, resource, count, full_opaque)
-						add_side_front(cur_vertex_data, cur_uv_data, x, y, z, resource, count, full_opaque)
-						add_side_back (cur_vertex_data, cur_uv_data, x, y, z, resource, count, full_opaque)
-						
-						if i != last_i:
-							next_resource = column[i + 1][0]
-							next_resource_full_opaque = blocks[next_resource].full_opaque
-						else:
-							next_resource_full_opaque = False
-						
-						if not next_resource_full_opaque:
-							add_top   (cur_vertex_data, cur_uv_data, x, y, z, resource, count)
-						if not prev_resource_full_opaque:
-							add_bottom(cur_vertex_data, cur_uv_data, x, y, z, resource, count)
-				else:
-					full_opaque = False
-				
-				y += count
-				prev_resource_full_opaque = full_opaque
+					y += count
+					prev_resource_full_opaque = full_opaque
 		
 		
 		water_vertex_data = self.water_vertex_data = []
 		water_uv_data     = self.water_uv_data     = []
 		
-		for (x, z), column in self.columns.items():
-			y = 0
-			for resource, count in column:
-				need_render = (0 < resource < 8)
-				
-				if need_render:
-					add_top   (water_vertex_data, water_uv_data, x, y,         z, resource, count)
-					add_bottom(water_vertex_data, water_uv_data, x, y + count, z, resource, count)
-				
-				y += count
+		for x, line in enumerate(self.columns):
+			for z, column in enumerate(line):
+				y = 0
+				for resource, count in column:
+					need_render = (0 < resource < 8)
+					
+					if need_render:
+						add_top   (water_vertex_data, water_uv_data, x, y,         z, resource, count)
+						add_bottom(water_vertex_data, water_uv_data, x, y + count, z, resource, count)
+					
+					y += count
 		
 		
 		self.has_model = True
@@ -691,7 +690,7 @@ class Chunk:
 		directory = os.path.dirname(self.data_path)
 		os.makedirs(directory, exist_ok = True)
 		
-		props = [self.max_y, self.columns_as_array]
+		props = [self.max_y, self.columns]
 		
 		# json for security (on case: chunk data from other people)
 		content = json.dumps(props, ensure_ascii = False, separators=(',', ':'), check_circular = False)
@@ -713,13 +712,7 @@ class Chunk:
 		content = zlib.decompress(content)
 		content = content.decode('utf-8')
 		props = json.loads(content)
-		self.max_y, self.columns_as_array = props
-		
-		columns = self.columns = {}
-		for i, column in enumerate(self.columns_as_array):
-			x = i // CHUNK_SIZE
-			z = i % CHUNK_SIZE
-			columns[(x, z)] = column
+		self.max_y, self.columns = props
 		
 		self.has_model = os.path.exists(self.model_path)
 		self.saved = True

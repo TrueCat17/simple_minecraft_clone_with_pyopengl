@@ -55,7 +55,7 @@ class World:
 		
 		if new:
 			chunk = self.chunks[(cam_chunk_x, cam_chunk_z)]
-			column = chunk.columns[(ipos.x % CHUNK_SIZE, ipos.z % CHUNK_SIZE)]
+			column = chunk.columns[ipos.x % CHUNK_SIZE][ipos.z % CHUNK_SIZE]
 			top_air = column[-1]
 			count = top_air[1]
 			

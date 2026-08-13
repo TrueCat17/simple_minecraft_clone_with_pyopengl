@@ -149,7 +149,7 @@ class SelectedBlock:
 		
 		world = self.world
 		chunk = world.chunks[(chunk_x, chunk_z)]
-		column = chunk.columns[(column_x, column_z)]
+		column = chunk.columns[column_x][column_z]
 		
 		x, y, z = pos
 		start_y = y
